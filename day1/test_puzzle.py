@@ -11,7 +11,7 @@ def input():
 
 @pytest.fixture
 def expected_output():
-    return 11
+    return 31
 
 
 def test_do_the_thing(input, expected_output):

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "advent-of-code-2024"
+version = "0.1.0"
+description = ""
+authors = ["Amy Gori <amydgori@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^7.4.3"
+
+[tool.poetry.group.dev.dependencies]
+pdbpp = "^0.10.3"
+black = "^23.11.0"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

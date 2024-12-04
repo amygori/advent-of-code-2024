@@ -24,19 +24,17 @@ def part_two(input):
     total = 0
     pattern = r"(?:mul)\((\d+,\d+)\)|do\(\)|don\'t\(\)"
     matches = re.finditer(pattern, input)
-    enabled = True
+    disabled = False
     for match in matches:
         res = eval(match.group().replace("'", ""))
-        if enabled is True:
-            if isinstance(res, int):
-                print(f"using {match.group()}")
-                print(f"evals to {res}")
-                total += res
-        enabled = res
-
-    # for factors in [pair.split(",") for pair in matches]:
-    #     result = reduce(lambda x, y: int(x) * int(y), factors)
-    #     total += result
+        if res is True:
+            disabled = False
+            continue
+        if res is False:
+            disabled = True
+            continue
+        if isinstance(res, int) and disabled is False:
+            total += res
     return total
 
 

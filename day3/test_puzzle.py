@@ -11,7 +11,7 @@ def input():
 
 @pytest.fixture
 def expected_output():
-    output = 161
+    output = 48
     return output
 
 

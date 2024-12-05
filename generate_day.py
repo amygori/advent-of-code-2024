@@ -8,8 +8,11 @@ def copy_template_directory(day_number):
     new_dir_name = f"day{day_number}"
     new_dir_path = os.path.join(os.getcwd(), new_dir_name)
 
-    # Copy the template directory to the new directory
-    shutil.copytree(template_dir, new_dir_path)
+    try:
+        # Copy the template directory to the new directory
+        shutil.copytree(template_dir, new_dir_path)
+    except FileExistsError:
+        print("File already exists.")
 
 
 if __name__ == "__main__":

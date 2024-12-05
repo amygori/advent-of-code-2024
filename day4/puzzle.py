@@ -12,11 +12,63 @@ def do_the_thing(input):
     ROW_COUNT = len(input)
     COL_COUNT = len(input[0])
 
-    word_count = search(input)
+    count = part_two(input)
+    return count
+
+
+def part_two(input):
+    return search_x_mas(input)
+
+
+def search_x_mas(graph):
+    word_count = 0
+    for row, line in enumerate(graph):
+        for column, letter in enumerate(line):
+            # if letter is 'A' then check neighbors
+            if letter == "A":
+                x1, x2 = check_diagonally_adjacent(graph, row, column, length=2)
+
+                valid_x1 = re.match(r"MAS|SAM", x1) if x1 else None
+                valid_x2 = re.match(r"MAS|SAM", x2) if x2 else None
+                if valid_x1 is not None and valid_x2 is not None:
+                    word_count += 1
+
     return word_count
 
 
-def search(graph):
+def check_diagonally_adjacent(graph, row, column, length=4):
+    adjacent_letters = {}
+
+    for direction in [
+        "up_left",
+        "up_right",
+        "down_left",
+        "down_right",
+    ]:
+        adjacent_letters[direction] = check_direction(
+            graph, row, column, direction, length=length
+        )
+
+    #  x1 is diagonally up left and down right
+    try:
+        x1 = graph[row - 1][column + 1] + "A" + graph[row + 1][column - 1]
+    except IndexError:
+        x1 = None
+
+    # x2 is diagonally up right and down left
+    try:
+        x2 = graph[row - 1][column - 1] + "A" + graph[row + 1][column + 1]
+    except IndexError:
+        x2 = None
+
+    return (x1, x2)
+
+
+def part_one(input):
+    return search_xmas(input)
+
+
+def search_xmas(graph):
     word_count = 0
     for row, line in enumerate(graph):
         for column, letter in enumerate(line):
@@ -30,7 +82,7 @@ def search(graph):
 
 def check_adjacent(graph, row, column):
     adjacent_letters = ""
-    # check four letters in all directions
+
     for direction in [
         "up",
         "down",
@@ -41,14 +93,14 @@ def check_adjacent(graph, row, column):
         "down_left",
         "down_right",
     ]:
-        adjacent_letters += check_direction(graph, row, column, direction)
+        adjacent_letters += check_direction(graph, row, column, direction, length=3)
 
     return adjacent_letters
 
 
-def check_direction(graph, row, column, direction):
+def check_direction(graph, row, column, direction, length):
     sequential_letters = ""
-    for i in range(4):
+    for i in range(length):
         if direction == "up":
             if row - i < 0:
                 break

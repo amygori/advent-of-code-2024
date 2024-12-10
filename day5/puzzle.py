@@ -8,8 +8,31 @@ def do_the_thing(input):
     newline = input.index("")
     rules = parse_rules(input[:newline])
     updates = input[newline + 1 :]
-    res = part_one(rules, updates)
+    res = part_two(rules, updates)
     return res
+
+
+def part_two(rule_data, updates):
+    # get a list of the incorrectly ordered updates
+    invalid_updates = get_incorrectly_ordered_updates(rule_data, updates)
+    print("Invalid updates: ", invalid_updates)
+
+
+def get_incorrectly_ordered_updates(rules, updates):
+    ordered_updates = []
+    valid_update = True
+    for update in updates:
+        update = update.split(",")
+        valid_update = True
+
+        for idx in range(len(update)):
+            valid = rule_check(idx, update, rules)
+            if not valid:
+                valid_update = False
+                break  # if the update is invalid, break out of the loop
+        if not valid_update:
+            ordered_updates.append(update)
+    return ordered_updates
 
 
 def part_one(rules, updates):

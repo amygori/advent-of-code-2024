@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from pprint import pprint
 
 
 def do_the_thing(input):
@@ -8,14 +7,40 @@ def do_the_thing(input):
     newline = input.index("")
     rules = parse_rules(input[:newline])
     updates = input[newline + 1 :]
-    res = part_two(rules, updates)
-    return res
+    result = part_two(rules, updates)
+    return result
 
 
 def part_two(rule_data, updates):
-    # get a list of the incorrectly ordered updates
     invalid_updates = get_incorrectly_ordered_updates(rule_data, updates)
-    print("Invalid updates: ", invalid_updates)
+    ordered_updates = []
+    for update in invalid_updates:
+        ordered_updates.append(sort_update(rule_data["pages_that_follow"], update))
+    return sum_of_middle_nums(ordered_updates)
+
+
+def sort_update(can_follow_rules, update):
+    """
+    takes one update and sorts it according to the rules
+    returns the sorted update
+    """
+    ordered_update = [update[0]]
+
+    for idx, page in enumerate(update[1:], 1):
+        insert_position = 0
+        for i, current in enumerate(ordered_update):
+            print(f"  - Comparing with '{current}'")
+            if page in can_follow_rules.get(current, []):
+                insert_position = i + 1
+                print(
+                    f"    → {current} precedes {page}, updating insert position to {insert_position}"
+                )
+            else:
+                print(
+                    f"    → {current} does not precede {page}, keeping insert position at {insert_position}"
+                )
+        ordered_update.insert(insert_position, page)
+    return ordered_update
 
 
 def get_incorrectly_ordered_updates(rules, updates):
@@ -35,6 +60,13 @@ def get_incorrectly_ordered_updates(rules, updates):
     return ordered_updates
 
 
+def sum_of_middle_nums(ordered_updates):
+    sum_of_middle_nums = 0
+    for update in ordered_updates:
+        sum_of_middle_nums += int(update[len(update) // 2])
+    return sum_of_middle_nums
+
+
 def part_one(rules, updates):
     ordered_updates = []
     valid_update = True
@@ -50,10 +82,7 @@ def part_one(rules, updates):
         if valid_update:
             ordered_updates.append(update)
 
-    sum_of_middle_nums = 0
-    for update in ordered_updates:
-        sum_of_middle_nums += int(update[len(update) // 2])
-    return sum_of_middle_nums
+    return sum_of_middle_nums(ordered_updates)
 
 
 def rule_check(idx, update, rules, valid=False):
@@ -82,8 +111,8 @@ def rule_check(idx, update, rules, valid=False):
 
 def parse_rules(rules):
     # parse the rules into a dictionary
-    # look up the key to find the numbers that should come after it.
-    # after lists the values that must come after the key -- the key comes before the values that are listed for it
+    # pages that follow -> lookup by the previous page. Answers question:  what comes after this?
+    # pages that precede -> lookup by the next page. Answers question: can this go here?
     rules_dict = {"pages_that_follow": {}, "pages_that_precede": {}}
     for rule in rules:
         rule = rule.split("|")

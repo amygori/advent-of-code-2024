@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from collections import defaultdict
+import copy
 
 
 def do_the_thing(input):
@@ -13,61 +14,56 @@ def do_the_thing(input):
 
 
 def part_two(input):
-    obstruction_count = 0
     guard_starting_position = get_starting_position(input)
-    graphs = generate_test_graphs(input, guard_starting_position)
-    twice_visited_positions = defaultdict(list)
-    graphs_with_loops = []
-    for graph in graphs:
-        loop_position = detect_loop(graph, guard_starting_position)
-        print("Loop position: ", loop_position)
-        if loop_position is not None:
-            graphs_with_loops.append(graph)
-            twice_visited_positions[loop_position[0]].append(loop_position[1])
-
-    return twice_visited_positions
-
-
-def generate_test_graphs(input, guard_starting_position):
+    print("Guard starting position: ", guard_starting_position)
+    # graphs = generate_test_graphs(input, guard_starting_position)
     positions = visited_positions(input)
-    obstructed_graphs = []
+    loop_positions = set()
     for position in positions:
         if position == guard_starting_position:
             continue
-        graph = input[:]
-        row = graph[position[0]]
-        index = position[1]
-        new_row = row[:index] + "$" + row[index + 1 :]
-        graph[position[0]] = new_row
-        # print("Adding obstacle at position ", position)
-        obstructed_graphs.append(graph)
+        if check_loop(position, input):
+            loop_positions.add(position)
+    return len(loop_positions)
+    # loop_position = detect_loop(graph, guard_starting_position)
+    # if loop_position is not None:
+    #     print("Loop detected at position: ", loop_position)
+    #     loop_positions.add(loop_position)
+    #     loop_count += 1
+    #     print("Loop count: ", loop_count)
+    # loop_count = len(set(loop_positions))
+    # return loop_count
+    return len(loop_positions)
 
-    return obstructed_graphs
 
-
-def detect_loop(input, guard_position):
+def check_loop(obstacle, graph):
+    height, width = len(graph), len(graph[0])
+    row, column = obstacle
+    graph = copy.deepcopy(graph)
+    index = column
+    new_line = graph[row][:index] + "#" + graph[row][index + 1 :]
+    graph[row] = new_line
+    guard_position = get_starting_position(graph)
     guard_direction = "up"
-    graph = input
-    edge_reached = False
-    loop_position = None
-    visited_positions = defaultdict(list)
+    visited_states = set()
 
-    while not edge_reached:
+    while True:
+        current_state = (guard_position, guard_direction)
+        if current_state in visited_states:
+            print(f"Loop detected at {current_state}")
+            return True
+        visited_states.add(current_state)
+
         next_move = move(guard_position, guard_direction, graph)
-        if guard_direction in visited_positions.get(next_move, []):
-            loop_position = (next_move, guard_direction)
-            break
+
         if position_is_edge(graph, next_move):
             print("Edge reached")
-            edge_reached = True
             break
         elif check_for_obstacle(graph, next_move):
             guard_direction = turn_right(guard_direction)
-            continue
         else:
             guard_position = next_move
-            visited_positions[guard_position].append(guard_direction)
-    return loop_position
+    return False
 
 
 def part_one(input):
@@ -85,7 +81,6 @@ def visited_positions(input):
         next_move = move(guard_position, guard_direction, graph)
 
         if position_is_edge(graph, next_move):
-            print("Edge reached")
             edge_reached = True
             break
         elif check_for_obstacle(graph, next_move):

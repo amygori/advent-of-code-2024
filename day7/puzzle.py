@@ -31,7 +31,8 @@ def generate_combinations(operator_count):
     """
     Generator function! yields all possible combinations of operators
     """
-    for combination in itertools.product("*+", repeat=operator_count):
+    operators = ["*", "+", "||"]
+    for combination in itertools.product(operators, repeat=operator_count):
         yield combination
 
 
@@ -43,6 +44,9 @@ def calculate(nums, combination):
             result += nums[idx + 1]
         elif operator == "*":
             result *= nums[idx + 1]
+        elif operator == "||":
+            # Concatenate the numbers on either side of the operator
+            result = int(str(result) + str(nums[idx + 1]))
     return result
 
 

@@ -6,15 +6,71 @@ import itertools
 
 
 def do_the_thing(input):
+    return part_two(input)
+
+
+def part_two(input):
     antennas = map_antennas(input.split())
+
     max_y = len(input.split()) - 1
     max_x = len(input.split()[0]) - 1
-    antinodes = find_antinodes(antennas, max_y, max_x)
+
+    antinodes = find_all_antinodes(antennas, max_y, max_x)
 
     return len(antinodes)
 
 
-def find_antinodes(antennas, max_y, max_x):
+def find_all_antinodes(antennas, max_y, max_x):
+    unique_antinodes = set()
+
+    for same_frequency_antennas in antennas.values():
+        for pair in itertools.combinations(same_frequency_antennas, 2):
+            antenna1y, antenna1x = pair[0]
+            antenna2y, antenna2x = pair[1]
+
+            # add the antennas to the set
+            unique_antinodes.add((antenna1y, antenna1x))
+            unique_antinodes.add((antenna2y, antenna2x))
+
+            # get diff between two positions
+            diff_y = antenna1y - antenna2y
+            diff_x = antenna1x - antenna2x
+
+            step_x, step_y = diff_x, diff_y
+
+            while True:
+                antinode1 = (antenna1y + step_y, antenna1x + step_x)
+                antinode2 = (antenna2y - step_y, antenna2x - step_x)
+
+                if not position_out_of_bounds(max_y, max_x, antinode1):
+                    unique_antinodes.add(antinode1)
+                    print(f"Added antinode1: {antinode1}")
+                if not position_out_of_bounds(max_y, max_x, antinode2):
+                    unique_antinodes.add(antinode2)
+                    print(f"Added antinode2: {antinode2}")
+
+                # Break the loop if both antinodes are out of bounds
+                if position_out_of_bounds(
+                    max_y, max_x, antinode1
+                ) and position_out_of_bounds(max_y, max_x, antinode2):
+                    break
+
+                step_x += diff_x
+                step_y += diff_y
+
+    return unique_antinodes
+
+
+def part_one(input):
+    antennas = map_antennas(input.split())
+    max_y = len(input.split()) - 1
+    max_x = len(input.split()[0]) - 1
+    antinodes = find_two_antinodes(antennas, max_y, max_x)
+
+    return len(antinodes)
+
+
+def find_two_antinodes(antennas, max_y, max_x):
     unique_antinodes = set()
     for same_frequency_antennas in antennas.values():
         for pair in itertools.combinations(same_frequency_antennas, 2):
